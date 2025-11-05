@@ -2,21 +2,43 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const { MONGODB_URI, JWT_SECRET } = process.env;
 const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'slot-swapper-frontend-git-main-chaitnya-khedekars-projects.vercel.app',
+  origin: 'https://slot-swapper-frontend-gilt.vercel.app',
   credentials: true,
 }));
 app.use(express.json());
 
 // MongoDB connection
-  mongoose.connect(process.env.MONGODB_URI)
+  mongoose.connect(MONGODB_URI)
   .then(() => console.log("✅ MongoDB connected successfully"))
   .catch((err) => console.error(" MongoDB connection error:", err));
 
+  const store = MongoStore.create({
+     mongoUrl:MONGODB_URI,
+     crypto:{
+      secret:JWT_SECRET
+     },
+     touchAfter:24*3600
+  })
+  
+  app.use(
+  session({
+    secret: JWT_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store,
+    cookie: {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+    },
+  })
+);
 // Routes
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
