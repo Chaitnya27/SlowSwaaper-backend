@@ -8,37 +8,18 @@ const { MONGODB_URI, JWT_SECRET } = process.env;
 
 const app = express();
 
-// ---------------------------
-// 1️⃣ CORS middleware
-// ---------------------------
-const corsOptions = {
-  origin: 'https://slot-swapper-frontend-gilt.vercel.app', // your frontend URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-};
-
 // Apply CORS to all requests
-app.use(cors(corsOptions));
+app.use(cors({
+origin: "https://slot-swapper-frontend-gilt.vercel.app",
+  credentials: true
+}));
 
-// Handle preflight requests
-app.options('*', cors(corsOptions));
-
-// ---------------------------
-// 2️⃣ Body parser
-// ---------------------------
 app.use(express.json());
 
-// ---------------------------
-// 3️⃣ MongoDB connection
-// ---------------------------
 mongoose.connect(MONGODB_URI)
-  .then(() => console.log("✅ MongoDB connected successfully"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  .then(() => console.log(" MongoDB connected successfully"))
+  .catch((err) => console.error(" MongoDB connection error:", err));
 
-// ---------------------------
-// 4️⃣ Session setup
-// ---------------------------
 const store = MongoStore.create({
   mongoUrl: MONGODB_URI,
   crypto: { secret: JWT_SECRET },
